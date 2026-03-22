@@ -7,45 +7,93 @@
 
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: #f5f6fa;
   padding: 20px;
+  margin: 0;
 }
 .container {
-  max-width: 700px;
+  max-width: 900px;
   margin: auto;
   background: white;
   padding: 20px;
   border-radius: 15px;
 }
-h2 { margin-bottom: 10px; }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+h2 {
+  margin-bottom: 20px;
 }
-
-.room-box {
-  border: 1px solid #ddd;
+label {
+  font-weight: bold;
+}
+select, textarea {
+  width: 100%;
   padding: 10px;
-  border-radius: 10px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
 }
-
+.section {
+  margin-bottom: 24px;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 .count {
   color: blue;
   font-weight: bold;
 }
-
+.room-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+}
+.room-type {
+  min-width: 90px;
+  font-weight: bold;
+  padding-top: 2px;
+}
+.room-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  flex: 1;
+}
+.room-options label {
+  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
 button {
   width: 100%;
   padding: 15px;
-  margin-top: 20px;
+  margin-top: 10px;
   background: black;
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 16px;
+  cursor: pointer;
+}
+button:hover {
+  opacity: 0.9;
+}
+@media (max-width: 700px) {
+  .room-line {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .room-type {
+    min-width: auto;
+  }
 }
 </style>
 </head>
@@ -53,68 +101,79 @@ button {
 <body>
 <div class="container">
 
-<h2>출근보고</h2>
+  <h2>출근보고</h2>
 
-<label>근로자</label>
-<select id="worker">
-  <option>직원1</option>
-  <option>직원2</option>
-  <option>직원3</option>
-</select>
+  <label for="worker">근로자</label>
+  <select id="worker">
+    <option value="">선택하세요</option>
+    <option>직원1</option>
+    <option>직원2</option>
+    <option>직원3</option>
+  </select>
 
-<h3>청소객실 (<span id="cleanCount">0</span>개)</h3>
-<div id="clean"></div>
+  <div class="section">
+    <div class="section-title">청소객실 (<span id="cleanCount">0</span>개)</div>
+    <div id="clean"></div>
+  </div>
 
-<h3>점검객실 (<span id="inspectCount">0</span>개)</h3>
-<div id="inspect"></div>
+  <div class="section">
+    <div class="section-title">점검객실 (<span id="inspectCount">0</span>개)</div>
+    <div id="inspect"></div>
+  </div>
 
-<h3>전날노쇼 (<span id="noshowCount">0</span>개)</h3>
-<div id="noshow"></div>
+  <div class="section">
+    <div class="section-title">전날노쇼 (<span id="noshowCount">0</span>개)</div>
+    <div id="noshow"></div>
+  </div>
 
-<label>특이사항</label>
-<textarea id="memo" style="width:100%; height:80px;"></textarea>
+  <label for="memo">특이사항</label>
+  <textarea id="memo" rows="4"></textarea>
 
-<button onclick="submitForm()">제출</button>
+  <button onclick="submitForm()">제출</button>
 
 </div>
 
 <script>
+const webhookUrl = "https://hook.us2.make.com/2y9kz1fqhfr2hl84og54aft1lcligjl5";
+
 const rooms = {
   "미니싱글": ["401","408","501","508"],
-  "싱글": ["402","407","502","507"],
-  "더블": ["403","404","405","503","504","505"],
+  "싱글": ["402","407","502","504"],
+  "더블": ["403","404","405","503","505"],
   "패밀리": ["406","506"]
 };
 
-function createSection(id){
+function createSection(id) {
   const container = document.getElementById(id);
 
-  for (let key in rooms){
-    let box = document.createElement("div");
-    box.className = "room-box";
+  for (let type in rooms) {
+    const line = document.createElement("div");
+    line.className = "room-line";
 
-    let title = document.createElement("b");
-    title.innerText = key;
-    box.appendChild(title);
+    const typeDiv = document.createElement("div");
+    typeDiv.className = "room-type";
+    typeDiv.textContent = type;
 
-    let grid = document.createElement("div");
-    grid.className = "grid";
+    const optionsDiv = document.createElement("div");
+    optionsDiv.className = "room-options";
 
-    rooms[key].forEach(r=>{
-      let label = document.createElement("label");
-      let cb = document.createElement("input");
+    rooms[type].forEach(room => {
+      const label = document.createElement("label");
+
+      const cb = document.createElement("input");
       cb.type = "checkbox";
-      cb.value = r;
+      cb.value = room;
       cb.name = id;
       cb.onchange = updateCount;
 
       label.appendChild(cb);
-      label.append(" "+r);
-      grid.appendChild(label);
+      label.append(" " + room);
+      optionsDiv.appendChild(label);
     });
 
-    box.appendChild(grid);
-    container.appendChild(box);
+    line.appendChild(typeDiv);
+    line.appendChild(optionsDiv);
+    container.appendChild(line);
   }
 }
 
@@ -122,23 +181,27 @@ createSection("clean");
 createSection("inspect");
 createSection("noshow");
 
-function getChecked(name){
-  return [...document.querySelectorAll(`input[name=${name}]:checked`)].map(e=>e.value);
+function getChecked(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e => e.value);
 }
 
-function updateCount(){
+function updateCount() {
   document.getElementById("cleanCount").innerText = getChecked("clean").length;
   document.getElementById("inspectCount").innerText = getChecked("inspect").length;
   document.getElementById("noshowCount").innerText = getChecked("noshow").length;
 }
 
-function submitForm(){
-
+async function submitForm() {
   const worker = document.getElementById("worker").value;
   const clean = getChecked("clean");
   const inspect = getChecked("inspect");
   const noshow = getChecked("noshow");
-  const memo = document.getElementById("memo").value;
+  const memo = document.getElementById("memo").value.trim();
+
+  if (!worker) {
+    alert("근로자를 선택하세요.");
+    return;
+  }
 
   const text =
 `[출근보고]
@@ -154,15 +217,42 @@ ${inspect.join(", ") || "없음"}
 
 특이사항: ${memo || "없음"}`;
 
-  fetch("https://hook.us2.make.com/2y9kz1fqhfr2hl84og54aft1lcligjl5", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({text})
-  });
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        worker: worker,
+        cleanRooms: clean,
+        cleanCount: clean.length,
+        inspectRooms: inspect,
+        inspectCount: inspect.length,
+        noshowRooms: noshow,
+        noshowText: noshow.join(", ") || "없음",
+        memo: memo || "없음",
+        text: text,
+        submittedAt: new Date().toISOString()
+      })
+    });
 
-  alert("전송완료");
+    if (!response.ok) {
+      throw new Error("Webhook 전송 실패");
+    }
+
+    alert("전송완료");
+
+    document.getElementById("worker").value = "";
+    document.getElementById("memo").value = "";
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateCount();
+
+  } catch (error) {
+    alert("전송 실패");
+    console.error(error);
+  }
 }
 </script>
-
 </body>
 </html>
