@@ -133,7 +133,8 @@ button {
   <div class="section-title">전날노쇼</div>
 
   <select id="noshowSelect" onchange="toggleNoshow()">
-    <option value="없음" selected>없음</option>
+    <option value="" selected>공란</option>
+    <option value="없음">없음</option>
     <option value="있음">있음</option>
   </select>
 
@@ -158,7 +159,7 @@ const webhookUrl = "https://hook.us2.make.com/2y9kz1fqhfr2hl84og54aft1lcligjl5";
 
 const rooms = {
   "미니싱글": ["401","408","501","508"],
-  "싱글": ["402","407","502","504","507"], // ← 수정 완료
+  "싱글": ["402","407","502","504","507"],
   "더블": ["403","404","405","503","505"],
   "패밀리": ["406","506"]
 };
@@ -177,7 +178,7 @@ function createSection(id) {
     const opt = document.createElement("div");
     opt.className = "room-options";
 
-    rooms[type].forEach(r=>{
+    rooms[type].forEach(r => {
       const label = document.createElement("label");
 
       const cb = document.createElement("input");
@@ -187,7 +188,7 @@ function createSection(id) {
       cb.onchange = updateCount;
 
       label.appendChild(cb);
-      label.append(" "+r);
+      label.append(" " + r);
       opt.appendChild(label);
     });
 
@@ -201,36 +202,44 @@ createSection("clean");
 createSection("inspect");
 createSection("noshow");
 
-function getChecked(name){
-  return [...document.querySelectorAll(`input[name=${name}]:checked`)].map(e=>e.value);
+function getChecked(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e => e.value);
 }
 
-function updateCount(){
+function updateCount() {
   document.getElementById("cleanCount").innerText = getChecked("clean").length;
   document.getElementById("inspectCount").innerText = getChecked("inspect").length;
 }
 
-function toggleNoshow(){
+function toggleNoshow() {
   const val = document.getElementById("noshowSelect").value;
   const box = document.getElementById("noshowBox");
 
-  if(val === "있음"){
+  if (val === "있음") {
     box.style.display = "block";
   } else {
     box.style.display = "none";
-    document.querySelectorAll('input[name=noshow]').forEach(cb=>cb.checked=false);
+    document.querySelectorAll('input[name="noshow"]').forEach(cb => cb.checked = false);
   }
 }
 
-function submitForm(){
-
+function submitForm() {
   const worker = document.getElementById("worker").value;
   const clean = getChecked("clean");
   const inspect = getChecked("inspect");
   const noshowMode = document.getElementById("noshowSelect").value;
   const noshowRooms = getChecked("noshow");
   const memo = document.getElementById("memo").value;
-  const msg = document.getElementById("customMessage").innerText;
+
+  if (!worker) {
+    alert("근로자를 선택하세요.");
+    return;
+  }
+
+  if (noshowMode === "") {
+    alert("노쇼가 있는지 없는지 선택해주세요");
+    return;
+  }
 
   const noshowText = noshowMode === "없음" ? "없음" : (noshowRooms.join(", ") || "없음");
 
@@ -246,12 +255,12 @@ ${inspect.join(", ") || "없음"}
 
 전날노쇼: ${noshowText}
 
-특이사항: ${memo || "없음"}
+특이사항: ${memo || "없음"}`;
 
-  fetch(webhookUrl,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({text})
+  fetch(webhookUrl, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({text})
   });
 
   alert("전송완료");
