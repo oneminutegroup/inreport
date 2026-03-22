@@ -154,7 +154,7 @@ ${inspect.join(", ") || "없음"}
 
 특이사항: ${memo || "없음"}`;
 
-  fetch("여기에_WEBHOOK_URL", {
+  fetch("https://hook.us2.make.com/2y9kz1fqhfr2hl84og54aft1lcligjl5", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({text})
