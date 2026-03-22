@@ -1,1 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>출근보고</title>
 
+<style>
+body {
+  font-family: Arial;
+  background: #f5f6fa;
+  padding: 20px;
+}
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+}
+h2 { margin-bottom: 10px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.room-box {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.count {
+  color: blue;
+  font-weight: bold;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h2>출근보고</h2>
+
+<label>근로자</label>
+<select id="worker">
+  <option>직원1</option>
+  <option>직원2</option>
+  <option>직원3</option>
+</select>
+
+<h3>청소객실 (<span id="cleanCount">0</span>개)</h3>
+<div id="clean"></div>
+
+<h3>점검객실 (<span id="inspectCount">0</span>개)</h3>
+<div id="inspect"></div>
+
+<h3>전날노쇼 (<span id="noshowCount">0</span>개)</h3>
+<div id="noshow"></div>
+
+<label>특이사항</label>
+<textarea id="memo" style="width:100%; height:80px;"></textarea>
+
+<button onclick="submitForm()">제출</button>
+
+</div>
+
+<script>
+const rooms = {
+  "미니싱글": ["401","408","501","508"],
+  "싱글": ["402","407","502","507"],
+  "더블": ["403","404","405","503","504","505"],
+  "패밀리": ["406","506"]
+};
+
+function createSection(id){
+  const container = document.getElementById(id);
+
+  for (let key in rooms){
+    let box = document.createElement("div");
+    box.className = "room-box";
+
+    let title = document.createElement("b");
+    title.innerText = key;
+    box.appendChild(title);
+
+    let grid = document.createElement("div");
+    grid.className = "grid";
+
+    rooms[key].forEach(r=>{
+      let label = document.createElement("label");
+      let cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = r;
+      cb.name = id;
+      cb.onchange = updateCount;
+
+      label.appendChild(cb);
+      label.append(" "+r);
+      grid.appendChild(label);
+    });
+
+    box.appendChild(grid);
+    container.appendChild(box);
+  }
+}
+
+createSection("clean");
+createSection("inspect");
+createSection("noshow");
+
+function getChecked(name){
+  return [...document.querySelectorAll(`input[name=${name}]:checked`)].map(e=>e.value);
+}
+
+function updateCount(){
+  document.getElementById("cleanCount").innerText = getChecked("clean").length;
+  document.getElementById("inspectCount").innerText = getChecked("inspect").length;
+  document.getElementById("noshowCount").innerText = getChecked("noshow").length;
+}
+
+function submitForm(){
+
+  const worker = document.getElementById("worker").value;
+  const clean = getChecked("clean");
+  const inspect = getChecked("inspect");
+  const noshow = getChecked("noshow");
+  const memo = document.getElementById("memo").value;
+
+  const text =
+`[출근보고]
+근로자: ${worker}
+
+청소객실: ${clean.length}개
+${clean.join(", ") || "없음"}
+
+점검객실: ${inspect.length}개
+${inspect.join(", ") || "없음"}
+
+전날노쇼: ${noshow.join(", ") || "없음"}
+
+특이사항: ${memo || "없음"}`;
+
+  fetch("여기에_WEBHOOK_URL", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({text})
+  });
+
+  alert("전송완료");
+}
+</script>
+
+</body>
+</html>
