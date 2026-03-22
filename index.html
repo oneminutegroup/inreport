@@ -6,9 +6,7 @@
 <title>출근보고</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html, body {
   margin: 0;
@@ -25,11 +23,8 @@ body {
 
 .container {
   width: 100%;
-  max-width: 100%;
-  margin: 0;
   background: white;
   padding: 14px;
-  border-radius: 0;
 }
 
 h2 {
@@ -41,23 +36,17 @@ label.main-label {
   display: block;
   font-weight: bold;
   margin-bottom: 8px;
-  font-size: 16px;
 }
 
 select, textarea {
   width: 100%;
   padding: 12px;
-  margin-top: 6px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 16px;
-  background: white;
+  border: 1px solid #ccc;
 }
 
-.section {
-  margin-bottom: 26px;
-}
+.section { margin-bottom: 26px; }
 
 .section-title {
   font-size: 18px;
@@ -70,136 +59,49 @@ select, textarea {
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
-  width: 100%;
 }
 
 .room-type {
-  width: 74px;
-  min-width: 74px;
+  width: 70px;
   font-weight: bold;
-  font-size: 15px;
-  line-height: 1.2;
-  display: flex;
-  align-items: center;
+  font-size: 14px;
 }
 
 .room-options {
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
+  gap: 5px 10px;
 }
 
 .room-options label {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 3px;
   white-space: nowrap;
-  font-size: 15px;
-  line-height: 1.1;
-  margin: 0;
-  font-weight: normal;
+  font-size: 14px;
 }
 
-.room-options input[type="checkbox"] {
+.room-options input {
+  width: 16px;
+  height: 16px;
   margin: 0;
-  width: 18px;
-  height: 18px;
-  flex: 0 0 auto;
 }
 
 .message-line {
   text-align: center;
-  font-size: 15px;
-  margin: 8px 0 12px 0;
-  color: #333;
+  font-size: 14px;
+  margin: 10px 0;
 }
 
 button {
   width: 100%;
   padding: 15px;
-  margin-top: 0;
   background: black;
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-#noshowBox {
-  margin-top: 8px;
-}
-
-@media (min-width: 768px) {
-  body {
-    padding: 16px;
-  }
-
-  .container {
-    max-width: 920px;
-    margin: 0 auto;
-    border-radius: 14px;
-    padding: 20px;
-  }
-
-  .room-type {
-    width: 90px;
-    min-width: 90px;
-    font-size: 16px;
-  }
-
-  .room-options label {
-    font-size: 16px;
-  }
-
-  .room-options {
-    gap: 8px 14px;
-  }
-}
-
-/* 모바일에서 한 줄 유지 쪽으로 더 압축 */
-@media (max-width: 420px) {
-  .container {
-    padding: 12px;
-  }
-
-  .room-line {
-    gap: 6px;
-  }
-
-  .room-type {
-    width: 68px;
-    min-width: 68px;
-    font-size: 14px;
-  }
-
-  .room-options {
-    gap: 4px 8px;
-  }
-
-  .room-options label {
-    font-size: 14px;
-    gap: 2px;
-  }
-
-  .room-options input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-  }
-
-  .section-title {
-    font-size: 17px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
 }
 </style>
 </head>
@@ -207,45 +109,47 @@ button:hover {
 <body>
 <div class="container">
 
-  <h2>출근보고</h2>
+<h2>출근보고</h2>
 
-  <label class="main-label" for="worker">근로자</label>
-  <select id="worker">
-    <option value="">선택하세요</option>
-    <option>직원1</option>
-    <option>직원2</option>
-    <option>직원3</option>
+<label class="main-label">근로자</label>
+<select id="worker">
+  <option value="">선택하세요</option>
+  <option>직원1</option>
+  <option>직원2</option>
+  <option>직원3</option>
+</select>
+
+<div class="section">
+  <div class="section-title">청소객실 (<span id="cleanCount">0</span>)</div>
+  <div id="clean"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">점검객실 (<span id="inspectCount">0</span>)</div>
+  <div id="inspect"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">전날노쇼</div>
+
+  <select id="noshowSelect" onchange="toggleNoshow()">
+    <option value="없음" selected>없음</option>
+    <option value="있음">있음</option>
   </select>
 
-  <div class="section">
-    <div class="section-title">청소객실 (<span id="cleanCount">0</span>)</div>
-    <div id="clean"></div>
+  <div id="noshowBox" style="display:none;">
+    <div id="noshow"></div>
   </div>
+</div>
 
-  <div class="section">
-    <div class="section-title">점검객실 (<span id="inspectCount">0</span>)</div>
-    <div id="inspect"></div>
-  </div>
+<label class="main-label">특이사항</label>
+<textarea id="memo"></textarea>
 
-  <div class="section">
-    <div class="section-title">전날노쇼</div>
+<div class="message-line" id="customMessage">
+오늘도 수고해주세요
+</div>
 
-    <select id="noshowSelect" onchange="toggleNoshow()">
-      <option value="없음" selected>없음</option>
-      <option value="있음">있음</option>
-    </select>
-
-    <div id="noshowBox" style="display:none;">
-      <div id="noshow"></div>
-    </div>
-  </div>
-
-  <label class="main-label" for="memo">특이사항</label>
-  <textarea id="memo" rows="4"></textarea>
-
-  <div class="message-line" id="customMessage">오늘도 수고해주세요</div>
-
-  <button onclick="submitForm()">출근완료</button>
+<button onclick="submitForm()">출근완료</button>
 
 </div>
 
@@ -254,7 +158,7 @@ const webhookUrl = "https://hook.us2.make.com/2y9kz1fqhfr2hl84og54aft1lcligjl5";
 
 const rooms = {
   "미니싱글": ["401","408","501","508"],
-  "싱글": ["402","407","502","504"],
+  "싱글": ["402","407","502","504","507"], // ← 수정 완료
   "더블": ["403","404","405","503","505"],
   "패밀리": ["406","506"]
 };
@@ -266,29 +170,29 @@ function createSection(id) {
     const line = document.createElement("div");
     line.className = "room-line";
 
-    const typeDiv = document.createElement("div");
-    typeDiv.className = "room-type";
-    typeDiv.textContent = type;
+    const t = document.createElement("div");
+    t.className = "room-type";
+    t.innerText = type;
 
-    const optionsDiv = document.createElement("div");
-    optionsDiv.className = "room-options";
+    const opt = document.createElement("div");
+    opt.className = "room-options";
 
-    rooms[type].forEach(room => {
+    rooms[type].forEach(r=>{
       const label = document.createElement("label");
 
       const cb = document.createElement("input");
       cb.type = "checkbox";
-      cb.value = room;
+      cb.value = r;
       cb.name = id;
       cb.onchange = updateCount;
 
       label.appendChild(cb);
-      label.append(" " + room);
-      optionsDiv.appendChild(label);
+      label.append(" "+r);
+      opt.appendChild(label);
     });
 
-    line.appendChild(typeDiv);
-    line.appendChild(optionsDiv);
+    line.appendChild(t);
+    line.appendChild(opt);
     container.appendChild(line);
   }
 }
@@ -297,40 +201,36 @@ createSection("clean");
 createSection("inspect");
 createSection("noshow");
 
-function getChecked(name) {
-  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e => e.value);
+function getChecked(name){
+  return [...document.querySelectorAll(`input[name=${name}]:checked`)].map(e=>e.value);
 }
 
-function updateCount() {
+function updateCount(){
   document.getElementById("cleanCount").innerText = getChecked("clean").length;
   document.getElementById("inspectCount").innerText = getChecked("inspect").length;
 }
 
-function toggleNoshow() {
+function toggleNoshow(){
   const val = document.getElementById("noshowSelect").value;
   const box = document.getElementById("noshowBox");
 
-  if (val === "있음") {
+  if(val === "있음"){
     box.style.display = "block";
   } else {
     box.style.display = "none";
-    document.querySelectorAll('input[name="noshow"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('input[name=noshow]').forEach(cb=>cb.checked=false);
   }
 }
 
-async function submitForm() {
+function submitForm(){
+
   const worker = document.getElementById("worker").value;
   const clean = getChecked("clean");
   const inspect = getChecked("inspect");
   const noshowMode = document.getElementById("noshowSelect").value;
   const noshowRooms = getChecked("noshow");
-  const memo = document.getElementById("memo").value.trim();
-  const customMessage = document.getElementById("customMessage").innerText.trim();
-
-  if (!worker) {
-    alert("근로자를 선택하세요.");
-    return;
-  }
+  const memo = document.getElementById("memo").value;
+  const msg = document.getElementById("customMessage").innerText;
 
   const noshowText = noshowMode === "없음" ? "없음" : (noshowRooms.join(", ") || "없음");
 
@@ -348,48 +248,17 @@ ${inspect.join(", ") || "없음"}
 
 특이사항: ${memo || "없음"}
 
-메시지: ${customMessage || "없음"}`;
+메시지: ${msg}`;
 
-  try {
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        worker: worker,
-        cleanRooms: clean,
-        cleanCount: clean.length,
-        inspectRooms: inspect,
-        inspectCount: inspect.length,
-        noshowMode: noshowMode,
-        noshowRooms: noshowRooms,
-        noshowText: noshowText,
-        memo: memo || "없음",
-        customMessage: customMessage || "없음",
-        text: text,
-        submittedAt: new Date().toISOString()
-      })
-    });
+  fetch(webhookUrl,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text})
+  });
 
-    if (!response.ok) {
-      throw new Error("Webhook 전송 실패");
-    }
-
-    alert("전송완료");
-
-    document.getElementById("worker").value = "";
-    document.getElementById("memo").value = "";
-    document.getElementById("noshowSelect").value = "없음";
-    toggleNoshow();
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    updateCount();
-
-  } catch (error) {
-    alert("전송 실패");
-    console.error(error);
-  }
+  alert("전송완료");
 }
 </script>
+
 </body>
 </html>
