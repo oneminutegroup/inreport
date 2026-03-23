@@ -253,7 +253,7 @@ async function submitForm() {
   const inspect = getChecked("inspect");
   const noshowMode = document.getElementById("noshowSelect").value;
   const noshowRooms = getChecked("noshow");
-  const memo = document.getElementById("memo").value;
+  const memo = document.getElementById("memo").value.trim();
 
   if (!worker) {
     alert("근로자를 선택하세요.");
@@ -270,27 +270,54 @@ async function submitForm() {
     return;
   }
 
-  const noshowText = noshowMode === "없음" ? "없음" : noshowRooms.join(", ");
+  const cleanRoomsText = clean.join(", ") || "없음";
+  const inspectRoomsText = inspect.join(", ") || "없음";
+  const noshowRoomsText = noshowRooms.join(", ") || "없음";
+  const noshowText = noshowMode === "없음" ? "없음" : noshowRoomsText;
 
   const text =
 `[출근보고]
 근로자: ${worker}
 
 청소객실: ${clean.length}개
-${clean.join(", ") || "없음"}
+${cleanRoomsText}
 
 점검객실: ${inspect.length}개
-${inspect.join(", ") || "없음"}
+${inspectRoomsText}
 
 전날노쇼: ${noshowText}
 
 특이사항: ${memo || "없음"}`;
 
+  const payload = {
+    report_type: "출근보고",
+    submitted_at: new Date().toISOString(),
+
+    worker: worker,
+
+    clean_count: clean.length,
+    clean_rooms: cleanRoomsText,
+    clean_rooms_array: clean,
+
+    inspect_count: inspect.length,
+    inspect_rooms: inspectRoomsText,
+    inspect_rooms_array: inspect,
+
+    noshow_mode: noshowMode,
+    noshow_rooms: noshowRoomsText,
+    noshow_rooms_array: noshowRooms,
+    noshow_text: noshowText,
+
+    memo: memo || "없음",
+
+    text: text
+  };
+
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ text })
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
