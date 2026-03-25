@@ -56,6 +56,23 @@ select, textarea {
   margin-bottom: 12px;
 }
 
+.section-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.section-title-row .section-title {
+  margin-bottom: 0;
+}
+
+.section-help {
+  font-size: 13px;
+  color: #666;
+}
+
 .room-line {
   display: flex;
   align-items: center;
@@ -144,17 +161,21 @@ button {
   </div>
 
   <div class="section">
-    <div class="section-title">점검객실 (<span id="inspectCount">0</span>)</div>
+    <div class="section-title-row">
+      <div class="section-title">점검객실 (<span id="inspectCount">0</span>)</div>
+      <div class="section-help">- 청소는 아닌데, 비어있는 객실을 점검 -</div>
+    </div>
     <div id="inspect"></div>
   </div>
 
   <div class="section">
-    <div class="section-title">전날노쇼</div>
+    <div class="section-title">노쇼</div>
 
     <select id="noshowSelect" onchange="toggleNoshow()">
       <option value="" selected>--</option>
       <option value="없음">없음</option>
-      <option value="있음">있음</option>
+      <option value="전날노쇼">전날노쇼</option>
+      <option value="전전날노쇼">전전날노쇼</option>
     </select>
 
     <div id="noshowBox" style="display:none;">
@@ -239,8 +260,17 @@ function toggleNoshow() {
   const val = document.getElementById("noshowSelect").value;
   const box = document.getElementById("noshowBox");
 
-  if (val === "있음") {
+  if (val === "전날노쇼" || val === "전전날노쇼") {
     box.style.display = "block";
+
+    if (val === "전날노쇼") {
+      alert("오늘 반드시 메세지 보내서 언제오는지 확인해주세요 (오후근무자대상)");
+    }
+
+    if (val === "전전날노쇼") {
+      alert("2일이나 지났고, 메세지 대답없으면 노쇼로 표시 또는 사장에게 바로 보고 해주세요. 게스트 안오고 메세지도 안오면 객실 2일넘게 비워두지마세요");
+    }
+
   } else {
     box.style.display = "none";
     document.querySelectorAll('input[name="noshow"]').forEach(cb => cb.checked = false);
@@ -261,11 +291,11 @@ async function submitForm() {
   }
 
   if (noshowMode === "") {
-    alert("노쇼가 있는지 없는지 선택해주세요");
+    alert("노쇼를 선택해주세요");
     return;
   }
 
-  if (noshowMode === "있음" && noshowRooms.length === 0) {
+  if ((noshowMode === "전날노쇼" || noshowMode === "전전날노쇼") && noshowRooms.length === 0) {
     alert("노쇼 객실을 선택해주세요");
     return;
   }
@@ -285,7 +315,8 @@ ${cleanRoomsText}
 점검객실: ${inspect.length}개
 ${inspectRoomsText}
 
-전날노쇼: ${noshowText}
+노쇼구분: ${noshowMode}
+노쇼객실: ${noshowText}
 
 특이사항: ${memo || "없음"}`;
 
